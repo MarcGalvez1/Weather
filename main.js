@@ -24,7 +24,8 @@ cityInput.addEventListener(
     if (
       userInput.length >= 5 &&
       currKey !== "ArrowDown" &&
-      currKey !== "ArrowUp"
+      currKey !== "ArrowUp" &&
+      currKey !== "Enter"
     ) {
       cityList.innerHTML = "";
       getOptions(userInput).then(() => {
@@ -43,11 +44,26 @@ cityInput.addEventListener(
 
 cityInput.addEventListener("keydown", (event) => {
   const currKey = event.key;
+  const focusedCity = cityList.querySelector(".focused");
+  switch (currKey) {
+    case "ArrowUp":
+      handleArrowKey("up");
+      break;
+    case "ArrowDown":
+      handleArrowKey("down");
+      break;
+    case "Enter":
+      if (focusedCity) {
+        const latitude = focusedCity.dataset.latitude;
+        const longitude = focusedCity.dataset.longitude;
 
-  if (currKey === "ArrowUp") {
-    handleArrowKey("up");
-  } else if (currKey === "ArrowDown") {
-    handleArrowKey("down");
+        if (latitude && longitude) {
+          getWeather(latitude, longitude);
+        }
+      }
+      break;
+    default:
+    // Do nothing
   }
 });
 
@@ -69,6 +85,8 @@ async function getOptions(cityName) {
       for (city of data.data) {
         const selectionData = document.createElement("li");
         selectionData.innerText = `${city.name}, ${city.regionCode}, ${city.countryCode}`;
+        selectionData.dataset.latitude = city.latitude;
+        selectionData.dataset.longitude = city.longitude;
 
         selectionData.addEventListener("click", () => {
           getWeather(city.latitude, city.longitude);
@@ -81,29 +99,12 @@ async function getOptions(cityName) {
             getWeather(city.latitude, city.longitude);
           }
         });
-
-        // Handle focus on arrow key navigation
-        selectionData.addEventListener("focus", function () {
-          selectionData.classList.add("focused", "bg-info");
-        });
-
-        selectionData.addEventListener("blur", function () {
-          selectionData.classList.remove("focused", "bg-info");
-        });
-
         cityList.appendChild(selectionData);
       }
 
       console.log(data);
     });
 }
-// try {
-//   const response = fetch(url, options);
-//   const result = response.text();
-//   console.log(result);
-// } catch (error) {
-//   console.error(error);
-// }
 
 function kelvinToCelsius(kelvinTemperature) {
   // Constants for temperature conversion
