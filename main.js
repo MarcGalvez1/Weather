@@ -14,7 +14,15 @@ function debounceKeyPress(callback, delay) {
     }, delay);
   };
 }
-
+window.addEventListener("load", () => {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition((position) => {
+      getWeather(position.coords.latitude, position.coords.longitude);
+    });
+  } else {
+    console.error("Geolocation is not supported by this browser.");
+  }
+});
 cityInput.addEventListener(
   "keyup",
   debounceKeyPress(function (event) {
