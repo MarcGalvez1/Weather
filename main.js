@@ -29,6 +29,9 @@ cityInput.addEventListener(
     const userInput = event.target.value;
     const currKey = event.key;
 
+    if (currKey === "Backspace" && userInput.length === 0) {
+      cityList.innerHTML = "";
+    }
     if (
       userInput.length >= 5 &&
       currKey !== "ArrowDown" &&
@@ -40,7 +43,7 @@ cityInput.addEventListener(
         const firstChild = cityList.firstChild;
 
         if (firstChild !== null) {
-          firstChild.classList.add("focused", "bg-info");
+          firstChild.classList.add("focused", "custom-purple-bg");
           firstChild.focus();
         } else {
           console.error("cityList does not have any child elements.");
@@ -95,6 +98,14 @@ async function getOptions(cityName) {
         selectionData.innerText = `${city.name}, ${city.regionCode}, ${city.countryCode}`;
         selectionData.dataset.latitude = city.latitude;
         selectionData.dataset.longitude = city.longitude;
+        selectionData.classList.add(
+          "option-list",
+          "ps-4",
+          "mt-2",
+          "mx-2",
+          "py-2",
+          "fs-4"
+        );
 
         selectionData.addEventListener("click", () => {
           getWeather(city.latitude, city.longitude);
@@ -164,7 +175,7 @@ function handleArrowKey(direction) {
   const focusedCity = cityList.querySelector(".focused");
 
   if (focusedCity) {
-    focusedCity.classList.remove("focused", "bg-info");
+    focusedCity.classList.remove("focused", "custom-purple-bg");
 
     // Determine the new focused city based on the direction
     const newFocusedCity =
@@ -173,7 +184,7 @@ function handleArrowKey(direction) {
         : focusedCity.nextElementSibling;
 
     if (newFocusedCity) {
-      newFocusedCity.classList.add("focused", "bg-info");
+      newFocusedCity.classList.add("focused", "custom-purple-bg");
       newFocusedCity.focus();
     }
   } else {
@@ -181,7 +192,7 @@ function handleArrowKey(direction) {
     const firstCity = cityList.firstChild;
 
     if (firstCity) {
-      firstCity.classList.add("focused", "bg-info");
+      firstCity.classList.add("focused", "custom-purple-bg");
       firstCity.focus();
     }
   }

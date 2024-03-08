@@ -1,1 +1,36 @@
+.bg-gradient-custom {
+  background: linear-gradient(
+    202deg,
+    hsla(267, 87%, 51%, 1),
+    hsla(267, 87%, 51%, 1) 50%,
+    rgb(133, 231, 255)
+  );
+  background-size: cover;
+  background-repeat: no-repeat;
+  height: 100vh; /* Set the height to fill the viewport */
 
+  color: white; /* Add text color to ensure visibility */
+}
+.custom-purple-bg {
+  background-color: hsla(267, 87%, 51%, 0.2);
+}
+#dropdown {
+  border-radius: 20px;
+}
+
+.dropdown-content {
+  width: 30%;
+}
+
+.custom-height {
+  height: 3em;
+  border-radius: 20px;
+}
+
+ul#city-options {
+  padding: 0;
+  list-style: none; /* Remove default list styling (bullets) */
+}
+.option-list {
+  border-radius: 15px;
+}
