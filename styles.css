@@ -18,7 +18,7 @@
   border-radius: 20px;
 }
 
-.dropdown-content {
+.card-width {
   width: 30%;
 }
 
@@ -33,4 +33,9 @@ ul#city-options {
 }
 .option-list {
   border-radius: 15px;
+}
+
+.option-list:hover {
+  cursor: pointer;
+  background-color: hsla(267, 87%, 51%, 0.5);
 }

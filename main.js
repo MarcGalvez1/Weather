@@ -17,7 +17,7 @@ function debounceKeyPress(callback, delay) {
 window.addEventListener("load", () => {
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition((position) => {
-      getWeather(position.coords.latitude, position.coords.longitude);
+      getCity(position.coords.latitude, position.coords.longitude);
     });
   } else {
     console.error("Geolocation is not supported by this browser.");
@@ -56,6 +56,7 @@ cityInput.addEventListener(
 cityInput.addEventListener("keydown", (event) => {
   const currKey = event.key;
   const focusedCity = cityList.querySelector(".focused");
+  const title = document.getElementById("city-name");
   switch (currKey) {
     case "ArrowUp":
       handleArrowKey("up");
@@ -67,16 +68,41 @@ cityInput.addEventListener("keydown", (event) => {
       if (focusedCity) {
         const latitude = focusedCity.dataset.latitude;
         const longitude = focusedCity.dataset.longitude;
-
+        title.innerText = focusedCity.innerText;
         if (latitude && longitude) {
-          getWeather(latitude, longitude);
+          // getWeather(latitude, longitude);
         }
+        cityInput.value = "";
+        cityList.innerHTML = "";
       }
       break;
     default:
     // Do nothing
   }
 });
+async function getCity(lat, lon) {
+  const url = `https://wft-geo-db.p.rapidapi.com/v1/geo/adminDivisions?location=${lat}${lon}`;
+  const options = {
+    method: "GET",
+    headers: {
+      "X-RapidAPI-Key": "d5318ed8aemsh6a3812e5aaa6a77p1c254cjsndf580e672805",
+      "X-RapidAPI-Host": "wft-geo-db.p.rapidapi.com",
+    },
+  };
+  return fetch(url, options)
+    .then(function (result) {
+      return result.json();
+    })
+    .then(function (data) {
+      const title = document.getElementById("city-name");
+      title.innerText =
+        data.data[0].name +
+        ", " +
+        data.data[0].regionCode +
+        ", " +
+        data.data[0].countryCode;
+    });
+}
 
 async function getOptions(cityName) {
   const url = `https://wft-geo-db.p.rapidapi.com/v1/geo/adminDivisions?namePrefix=${cityName}&limit=10`;
@@ -108,15 +134,11 @@ async function getOptions(cityName) {
         );
 
         selectionData.addEventListener("click", () => {
-          getWeather(city.latitude, city.longitude);
-        });
-
-        // Attach keydown event listener for keyboard navigation
-        selectionData.addEventListener("keydown", function (event) {
-          if (event.key === "Enter" || event.key === " ") {
-            event.preventDefault();
-            getWeather(city.latitude, city.longitude);
-          }
+          const title = document.getElementById("city-name");
+          title.innerText = selectionData.innerText;
+          // getWeather(city.latitude, city.longitude);
+          cityInput.value = "";
+          cityList.innerHTML = "";
         });
         cityList.appendChild(selectionData);
       }
@@ -158,7 +180,6 @@ async function getWeather(lat, lon) {
     .then(function (data) {
       // Handle the JSON temp datas for every 3 hours in 5 days
       console.log(data);
-      console.log(data.city.name);
       for (const temps of data.list) {
         console.log(
           kelvinToFahrenheit(temps.main.temp) + " Date: " + temps.dt_txt
