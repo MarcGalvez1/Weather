@@ -1,5 +1,4 @@
 const cityInput = document.getElementById("dropdown-input");
-let debounceTimer;
 const cityList = document.getElementById("city-options");
 
 // Function to debounce keypress events
@@ -18,6 +17,7 @@ window.addEventListener("load", () => {
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition((position) => {
       getCity(position.coords.latitude, position.coords.longitude);
+      getWeather(position.coords.latitude, position.coords.longitude);
     });
   } else {
     console.error("Geolocation is not supported by this browser.");
@@ -70,7 +70,7 @@ cityInput.addEventListener("keydown", (event) => {
         const longitude = focusedCity.dataset.longitude;
         title.innerText = focusedCity.innerText;
         if (latitude && longitude) {
-          // getWeather(latitude, longitude);
+          getWeather(latitude, longitude);
         }
         cityInput.value = "";
         cityList.innerHTML = "";
@@ -136,7 +136,7 @@ async function getOptions(cityName) {
         selectionData.addEventListener("click", () => {
           const title = document.getElementById("city-name");
           title.innerText = selectionData.innerText;
-          // getWeather(city.latitude, city.longitude);
+          getWeather(city.latitude, city.longitude);
           cityInput.value = "";
           cityList.innerHTML = "";
         });
@@ -179,12 +179,48 @@ async function getWeather(lat, lon) {
     })
     .then(function (data) {
       // Handle the JSON temp datas for every 3 hours in 5 days
-      console.log(data);
+      const daysMap = new Map();
+      const dateTimes = new Array();
+      const days = [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+      ];
       for (const temps of data.list) {
-        console.log(
-          kelvinToFahrenheit(temps.main.temp) + " Date: " + temps.dt_txt
-        );
+        const formattedDate = dayjs(temps.dt_txt, "MM-YYYY-DDDD");
+
+        dateTimes.push(formattedDate);
+        if (daysMap.has(days[formattedDate.day()])) {
+          daysMap.get(days[formattedDate.day()]).push(temps.main);
+        } else {
+          daysMap.set(days[formattedDate.day()], [temps.main]);
+        }
       }
+
+      return { daysMap, dateTimes };
+    })
+    .then(function (data) {
+      console.log(data);
+      const navContainer = document.getElementById("weekly-weather");
+      // navContainer.innerHTML = ""; // Ensures nav bar is empty each time fetch is called
+      data.daysMap.forEach((value, key) => {
+        const navLinkContainer = document.createElement("li");
+        navLinkContainer.classList.add("nav-item");
+
+        const navLink = document.createElement("a");
+        navLink.classList.add("nav-link");
+        if (navContainer.childElementCount === 0) {
+          navLink.classList.add("active");
+        }
+        navLink.innerText = key;
+
+        navLinkContainer.appendChild(navLink);
+        navContainer.appendChild(navLinkContainer);
+      });
     })
 
     .catch(function (err) {
