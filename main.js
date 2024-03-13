@@ -179,6 +179,7 @@ async function getWeather(lat, lon) {
     })
     .then(function (data) {
       // Handle the JSON temp datas for every 3 hours in 5 days
+      console.log(data);
       const daysMap = new Map();
       const dateTimes = new Map();
 
@@ -227,13 +228,17 @@ async function getWeather(lat, lon) {
           const weatherContainer = document.getElementById("weather");
           weatherContainer.innerHTML = "";
           // populate data
-          for (const currTemp of value) {
-            const tempContainer = document.createElement("li");
-            tempContainer.innerText = currTemp.temp;
+          for (let i = 0; i < value.length; i++) {
+            const tempContainer = document.createElement("tr");
+            tempContainer.innerText = value[i].temp;
             tempContainer.classList.add("text-dark");
 
+            const timeContainer = document.createElement("span");
+
+            // const timeContainer
+
             weatherContainer.appendChild(tempContainer);
-            console.log(currTemp);
+            console.log(value[i]);
           }
           // const currDates = data.dateTimes.get(key);
           // console.log(currDates);
