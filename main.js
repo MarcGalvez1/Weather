@@ -119,7 +119,7 @@ async function getOptions(cityName) {
       return result.json();
     })
     .then(function (data) {
-      for (city of data.data) {
+      for (const city of data.data) {
         const selectionData = document.createElement("li");
         selectionData.innerText = `${city.name}, ${city.regionCode}, ${city.countryCode}`;
         selectionData.dataset.latitude = city.latitude;
@@ -180,7 +180,26 @@ async function getWeather(lat, lon) {
     .then(function (data) {
       // Handle the JSON temp datas for every 3 hours in 5 days
       const daysMap = new Map();
-      const dateTimes = new Array();
+      const dateTimes = new Map();
+
+      for (const temps of data.list) {
+        const formattedDate = dayjs(temps.dt_txt, "MM-YYYY-DDDD");
+
+        if (daysMap.has(formattedDate.day())) {
+          daysMap.get(formattedDate.day()).push(temps.main);
+          dateTimes.get(formattedDate.day()).push(formattedDate);
+        } else {
+          daysMap.set(formattedDate.day(), [temps.main]);
+          dateTimes.set(formattedDate.day(), [formattedDate]);
+        }
+      }
+
+      return { daysMap, dateTimes };
+    })
+    .then(function (data) {
+      console.log(data);
+      const navContainer = document.getElementById("weekly-weather");
+      navContainer.innerHTML = ""; // Ensures nav bar is empty each time fetch is called
       const days = [
         "Sunday",
         "Monday",
@@ -190,23 +209,7 @@ async function getWeather(lat, lon) {
         "Friday",
         "Saturday",
       ];
-      for (const temps of data.list) {
-        const formattedDate = dayjs(temps.dt_txt, "MM-YYYY-DDDD");
 
-        dateTimes.push(formattedDate);
-        if (daysMap.has(days[formattedDate.day()])) {
-          daysMap.get(days[formattedDate.day()]).push(temps.main);
-        } else {
-          daysMap.set(days[formattedDate.day()], [temps.main]);
-        }
-      }
-
-      return { daysMap, dateTimes };
-    })
-    .then(function (data) {
-      console.log(data);
-      const navContainer = document.getElementById("weekly-weather");
-      // navContainer.innerHTML = ""; // Ensures nav bar is empty each time fetch is called
       data.daysMap.forEach((value, key) => {
         const navLinkContainer = document.createElement("li");
         navLinkContainer.classList.add("nav-item");
@@ -216,7 +219,25 @@ async function getWeather(lat, lon) {
         if (navContainer.childElementCount === 0) {
           navLink.classList.add("active");
         }
-        navLink.innerText = key;
+        navLink.innerText = days[key];
+        navLink.href = "#";
+
+        navLinkContainer.addEventListener("click", () => {
+          // clear wheather data
+          const weatherContainer = document.getElementById("weather");
+          weatherContainer.innerHTML = "";
+          // populate data
+          for (const currTemp of value) {
+            const tempContainer = document.createElement("li");
+            tempContainer.innerText = currTemp.temp;
+            tempContainer.classList.add("text-dark");
+
+            weatherContainer.appendChild(tempContainer);
+            console.log(currTemp);
+          }
+          // const currDates = data.dateTimes.get(key);
+          // console.log(currDates);
+        });
 
         navLinkContainer.appendChild(navLink);
         navContainer.appendChild(navLinkContainer);
