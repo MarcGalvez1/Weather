@@ -167,7 +167,11 @@ function kelvinToFahrenheit(kelvinTemperature) {
   const fahrenheitTemperature =
     celsiusTemperature * celsiusToFahrenheitFactor + celsiusToFahrenheitOffset;
 
-  return fahrenheitTemperature;
+  // Ensure exactly two decimal places
+  const formattedTemperature = fahrenheitTemperature.toFixed(2);
+
+  // Parse as float to remove trailing zeroes if any
+  return formattedTemperature;
 }
 
 async function getWeather(lat, lon) {
@@ -181,21 +185,18 @@ async function getWeather(lat, lon) {
       // Handle the JSON temp datas for every 3 hours in 5 days
       console.log(data);
       const daysMap = new Map();
-      const dateTimes = new Map();
 
       for (const temps of data.list) {
         const formattedDate = dayjs(temps.dt_txt, "MM-YYYY-DDDD");
 
         if (daysMap.has(formattedDate.day())) {
-          daysMap.get(formattedDate.day()).push(temps.main);
-          dateTimes.get(formattedDate.day()).push(formattedDate);
+          daysMap.get(formattedDate.day()).push(temps);
         } else {
-          daysMap.set(formattedDate.day(), [temps.main]);
-          dateTimes.set(formattedDate.day(), [formattedDate]);
+          daysMap.set(formattedDate.day(), [temps]);
         }
       }
 
-      return { daysMap, dateTimes };
+      return { daysMap };
     })
     .then(function (data) {
       console.log(data);
@@ -210,7 +211,7 @@ async function getWeather(lat, lon) {
         "Friday",
         "Saturday",
       ];
-
+      let isFirstIteration = true;
       data.daysMap.forEach((value, key) => {
         const navLinkContainer = document.createElement("li");
         navLinkContainer.classList.add("nav-item");
@@ -223,25 +224,34 @@ async function getWeather(lat, lon) {
         navLink.innerText = days[key];
         navLink.href = "#";
 
+        // clear wheather data
+        const weatherContainer = document.getElementById("weather-contents");
+        weatherContainer.innerHTML = "";
+
         navLinkContainer.addEventListener("click", () => {
-          // clear wheather data
-          const weatherContainer = document.getElementById("weather");
+          const weatherContainer = document.getElementById("weather-contents");
           weatherContainer.innerHTML = "";
           // populate data
           for (let i = 0; i < value.length; i++) {
-            const tempContainer = document.createElement("tr");
-            tempContainer.innerText = value[i].temp;
-            tempContainer.classList.add("text-dark");
+            // table row
+            const row = document.createElement("tr");
+            // Time Data
+            const timeContainer = document.createElement("td");
+            const date = dayjs(value[i].dt_txt, "YYYY-MM-DD HH:mm:ss"); // Assuming value[i].dt_txt is in "YYYY-MM-DD HH:mm:ss" format
+            const formattedTime = date.format("hh:mm A"); // Format the time to "hh:mm A" (e.g., "08:00 PM")
+            timeContainer.innerText = formattedTime;
 
-            const timeContainer = document.createElement("span");
+            // temp data
+            const tempContainer = document.createElement("td");
+            tempContainer.innerText = kelvinToFahrenheit(value[i].main.temp);
+            tempContainer.classList.add("text-light", "temps", "fahrenheit");
 
             // const timeContainer
-
-            weatherContainer.appendChild(tempContainer);
+            row.appendChild(timeContainer);
+            row.appendChild(tempContainer);
+            weatherContainer.appendChild(row);
             console.log(value[i]);
           }
-          // const currDates = data.dateTimes.get(key);
-          // console.log(currDates);
         });
 
         navLinkContainer.appendChild(navLink);
