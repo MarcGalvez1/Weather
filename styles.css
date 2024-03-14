@@ -18,10 +18,6 @@
   border-radius: 20px;
 }
 
-.card-width {
-  width: 30%;
-}
-
 .custom-height {
   height: 3em;
   border-radius: 20px;
@@ -38,4 +34,21 @@ ul#city-options {
 .option-list:hover {
   cursor: pointer;
   background-color: hsla(267, 87%, 51%, 0.5);
+}
+
+@media only screen and (max-width: 1080px) {
+  .card-width {
+    width: 100%;
+  }
+}
+@media only screen and (min-width: 1080px) {
+  .card-width {
+    width: 80%;
+  }
+}
+
+@media only screen and (min-width: 1440px) {
+  .card-width {
+    width: 50%;
+  }
 }

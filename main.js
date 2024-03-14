@@ -217,14 +217,21 @@ async function getWeather(lat, lon) {
         navLinkContainer.classList.add("nav-item");
 
         const navLink = document.createElement("a");
-        navLink.classList.add("nav-link");
+        navLink.classList.add("nav-link", "nav-link", "fs-3");
         if (navContainer.childElementCount === 0) {
           navLink.classList.add("active");
         }
         navLink.innerText = days[key];
         navLink.href = "#";
 
-        navLinkContainer.addEventListener("click", () => {
+        navLinkContainer.addEventListener("click", (event) => {
+          const links = document.querySelectorAll(".nav-link");
+          for (const link of links) {
+            if (link.classList.contains("active")) {
+              link.classList.remove("active");
+            }
+          }
+          event.target.classList.add("active");
           populateWeatherData(value);
         });
 
@@ -255,11 +262,12 @@ function populateWeatherData(value) {
     const date = dayjs(value[i].dt_txt, "YYYY-MM-DD HH:mm:ss"); // Assuming value[i].dt_txt is in "YYYY-MM-DD HH:mm:ss" format
     const formattedTime = date.format("hh:mm A"); // Format the time to "hh:mm A" (e.g., "08:00 PM")
     timeContainer.innerText = formattedTime;
+    timeContainer.classList.add("fs-4");
 
     // temp data
     const tempContainer = document.createElement("td");
     tempContainer.innerText = kelvinToFahrenheit(value[i].main.temp);
-    tempContainer.classList.add("text-light", "temps", "fahrenheit");
+    tempContainer.classList.add("text-light", "temps", "fahrenheit", "fs-4");
 
     row.appendChild(timeContainer);
     row.appendChild(tempContainer);
