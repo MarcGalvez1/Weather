@@ -224,44 +224,48 @@ async function getWeather(lat, lon) {
         navLink.innerText = days[key];
         navLink.href = "#";
 
-        // clear wheather data
-        const weatherContainer = document.getElementById("weather-contents");
-        weatherContainer.innerHTML = "";
-
         navLinkContainer.addEventListener("click", () => {
-          const weatherContainer = document.getElementById("weather-contents");
-          weatherContainer.innerHTML = "";
-          // populate data
-          for (let i = 0; i < value.length; i++) {
-            // table row
-            const row = document.createElement("tr");
-            // Time Data
-            const timeContainer = document.createElement("td");
-            const date = dayjs(value[i].dt_txt, "YYYY-MM-DD HH:mm:ss"); // Assuming value[i].dt_txt is in "YYYY-MM-DD HH:mm:ss" format
-            const formattedTime = date.format("hh:mm A"); // Format the time to "hh:mm A" (e.g., "08:00 PM")
-            timeContainer.innerText = formattedTime;
-
-            // temp data
-            const tempContainer = document.createElement("td");
-            tempContainer.innerText = kelvinToFahrenheit(value[i].main.temp);
-            tempContainer.classList.add("text-light", "temps", "fahrenheit");
-
-            // const timeContainer
-            row.appendChild(timeContainer);
-            row.appendChild(tempContainer);
-            weatherContainer.appendChild(row);
-            console.log(value[i]);
-          }
+          populateWeatherData(value);
         });
 
         navLinkContainer.appendChild(navLink);
         navContainer.appendChild(navLinkContainer);
+
+        // Populate weather data for the first day by default
+        if (navContainer.childElementCount === 1 && isFirstIteration) {
+          populateWeatherData(value);
+          isFirstIteration = false;
+        }
       });
     })
-
     .catch(function (err) {
       console.log(err);
     });
+}
+
+function populateWeatherData(value) {
+  const weatherContainer = document.getElementById("weather-contents");
+  weatherContainer.innerHTML = "";
+  // populate data
+  for (let i = 0; i < value.length; i++) {
+    // table row
+    const row = document.createElement("tr");
+    // Time Data
+    const timeContainer = document.createElement("td");
+    const date = dayjs(value[i].dt_txt, "YYYY-MM-DD HH:mm:ss"); // Assuming value[i].dt_txt is in "YYYY-MM-DD HH:mm:ss" format
+    const formattedTime = date.format("hh:mm A"); // Format the time to "hh:mm A" (e.g., "08:00 PM")
+    timeContainer.innerText = formattedTime;
+
+    // temp data
+    const tempContainer = document.createElement("td");
+    tempContainer.innerText = kelvinToFahrenheit(value[i].main.temp);
+    tempContainer.classList.add("text-light", "temps", "fahrenheit");
+
+    row.appendChild(timeContainer);
+    row.appendChild(tempContainer);
+    weatherContainer.appendChild(row);
+    console.log(value[i]);
+  }
 }
 
 function handleArrowKey(direction) {
